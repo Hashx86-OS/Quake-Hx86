@@ -85,7 +85,7 @@ void *kbrk(int size) {
         while (remaining > 0) {
             int chunk = remaining > MAX_BRK_PER_CALL ? MAX_BRK_PER_CALL : remaining;
             int32_t res = syscall_brk(chunk);
-            if (res == -1) return NULL;
+            if (res < 0) return NULL;
             g_total_size += chunk;
             g_heap_end_addr = (void *)((unsigned long)g_heap_end_addr + chunk);
             remaining -= chunk;
@@ -214,6 +214,21 @@ void *krealloc(void *ptr, int size) {
     heap_BLOCK *temp = g_head;
     while (temp != NULL) {
         if (temp->data == ptr) {
+            if (size <= temp->metadata.size) {
+                int remaining = temp->metadata.size - size;
+                if (remaining > (int)sizeof(heap_BLOCK) + 32) {
+                    heap_BLOCK *new_free = (heap_BLOCK *)((unsigned long)temp->data + size);
+                    new_free->metadata.size = remaining - sizeof(heap_BLOCK);
+                    new_free->metadata.is_free = true;
+                    new_free->data = (void *)((unsigned long)new_free + sizeof(heap_BLOCK));
+                    new_free->next = temp->next;
+                    
+                    temp->next = new_free;
+                    temp->metadata.size = size;
+                }
+                return ptr;
+            }
+
             void *new_ptr = kmalloc(size);
             if (!new_ptr) return NULL;
 

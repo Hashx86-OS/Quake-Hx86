@@ -196,7 +196,7 @@ double atan(double x) {
 
 double atan2(double y, double x) {
     double result;
-    __asm__ volatile ("fpatan" : "=t" (result) : "0" (y), "u" (x) : "st(1)");
+    __asm__ volatile ("fpatan" : "=t" (result) : "0" (x), "u" (y) : "st(1)");
     return result;
 }
 

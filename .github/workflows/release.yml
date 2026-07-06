@@ -1,0 +1,37 @@
+name: Automated Release Build
+
+# This triggers the workflow automatically
+on:
+  push:
+    branches: [ "hx86-port" ]
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-release:
+    name: Build and Create Release
+    runs-on: ubuntu-latest
+    
+    # Required permission to upload release assets
+    permissions:
+      contents: write 
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install C++ Compiler and Dependencies
+        # Installs GCC, G++, multilib (for -m32), and make
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc g++ gcc-multilib g++-multilib make binutils
+
+      - name: Build Quake-HX86
+        run: make
+
+      - name: Create GitHub Release and Upload Artifact
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/Quake.bin
+          generate_release_notes: true
