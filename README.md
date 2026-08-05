@@ -24,6 +24,8 @@ Output: `build/Quake.bin`
 
 `pak0.pak` is **proprietary** — you must provide your own copy from a legal Quake installation (Steam, GOG, original CD). The shareware `pak0.pak` also works for the first episode.
 
+The game resolves its data directory relative to the running binary's location, so `pak0.pak` must be placed in an `id1/` folder next to `Quake.bin` (i.e. `<Quake dir>/id1/pak0.pak`). If the file is missing, the game shows a GUI dialog with the expected path and an Exit button.
+
 ## Install to Hashx86 OS disk image
 
 Mount the VHD/VDI and copy the files directly:
@@ -40,12 +42,11 @@ sudo mkdir -p /mnt/vdi_p1
 sudo mount /dev/nbd0p1 /mnt/vdi_p1
 
 # 4. Create directories
-sudo mkdir -p /mnt/vdi_p1/apps/Quake
-sudo mkdir -p /mnt/vdi_p1/id1
+sudo mkdir -p /mnt/vdi_p1/apps/Quake/id1
 
 # 5. Copy Quake binary and game data
 sudo cp build/Quake.bin /mnt/vdi_p1/apps/Quake/Quake.bin
-sudo cp /path/to/your/pak0.pak /mnt/vdi_p1/id1/pak0.pak
+sudo cp /path/to/your/pak0.pak /mnt/vdi_p1/apps/Quake/id1/pak0.pak
 
 # 6. Cleanup
 sudo umount /mnt/vdi_p1
@@ -56,11 +57,11 @@ Disk image layout after copying:
 
 ```
 /
-├── apps/
-│   └── Quake/
-│       └── Quake.bin        ← the game binary
-└── id1/
-    └── pak0.pak             ← game data (not included)
+└── apps/
+    └── Quake/
+        ├── Quake.bin        ← the game binary
+        └── id1/
+            └── pak0.pak     ← game data (not included)
 ```
 
 ## Run
