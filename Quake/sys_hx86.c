@@ -10,6 +10,7 @@
 
 qboolean isDedicated;
 int nostdout = 0;
+static char basedir_buf[256];
 char *basedir = "";
 static int fpu_control_word;
 cvar_t sys_linerefresh = {"sys_linerefresh","0"};
@@ -206,6 +207,16 @@ extern "C" void QuakeMain(int argc, char *argv[]) {
     if (!parms.membase) {
         printf("[Quake] FATAL: Failed to allocate %d bytes for heap\n", parms.memsize);
         syscall_exit(1);
+    }
+
+    // Resolve the base directory from the running binary's location so game
+    // data (id1/pak0.pak) is found alongside Quake.bin rather than an absolute path.
+    {
+        int cwdLen = syscall_getcwd(basedir_buf, sizeof(basedir_buf));
+        if (cwdLen <= 0)
+            basedir = "";
+        else
+            basedir = basedir_buf;
     }
 
     parms.basedir = basedir;

@@ -85,4 +85,5 @@ int32_t syscall_is_process_alive(uint32_t pid);
 int32_t syscall_get_process_app_mode(uint32_t pid);
 void syscall_get_input(InputState* state);
 FramebufferInfo syscall_get_framebuffer();
+int32_t syscall_getcwd(char* buf, uint32_t bufSize);
 #endif  // SYSCALLS_H

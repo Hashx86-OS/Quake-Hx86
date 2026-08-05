@@ -218,3 +218,12 @@ FramebufferInfo syscall_get_framebuffer() {
     info.height = height;
     return info;
 }
+
+int32_t syscall_getcwd(char* buf, uint32_t bufSize) {
+    int32_t return_data = -1;
+    asm volatile("int $0x80"
+                 : "=a"(return_data)
+                 : "a"(sys_getcwd), "b"(buf), "c"(bufSize)
+                 : "memory");
+    return return_data;
+}
