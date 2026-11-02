@@ -1,24 +1,47 @@
 name: Automated Release Build
 
-# This triggers the workflow automatically
 on:
   push:
     branches: [ "hx86-port" ]
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      libhx86_ref:
+        description: Hashx86-OS commit or tag to build libhx86 from
+        required: false
+        type: string
+
+env:
+  # Temporary: track the kernel's dev branch until the networking/libhx86
+  # changes are committed and a stable tag/commit is chosen. For release
+  # reproducibility, set the LIBHX86_REF repository variable to a commit or
+  # tag; it overrides this default without editing the workflow.
+  LIBHX86_REF: ${{ github.event.inputs.libhx86_ref || vars.LIBHX86_REF || 'dev' }}
 
 jobs:
   build-and-release:
     name: Build and Create Release
-    runs-on: ubuntu-latest
-    
+    runs-on: ubuntu-24.04
+
     # Required permission to upload release assets
     permissions:
-      contents: write 
+      contents: write
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Checkout Hashx86 libhx86
+        uses: actions/checkout@v4
+        with:
+          repository: Hashx86-OS/Hashx86-OS
+          ref: ${{ env.LIBHX86_REF }}
+          path: kernel
+          sparse-checkout: |
+            user_prog/libhx86
+            include
+          persist-credentials: false
 
       - name: Install C++ Compiler and Dependencies
         # Installs GCC, G++, multilib (for -m32), and make
@@ -27,11 +50,19 @@ jobs:
           sudo apt-get install -y gcc g++ gcc-multilib g++-multilib make binutils
 
       - name: Build Quake-HX86
-        run: make
+        run: make -j"$(nproc)" KERNEL_DIR="$GITHUB_WORKSPACE/kernel"
+
+      - name: Verify Build Output
+        run: |
+          test -s build/Quake.bin
+          file build/Quake.bin
+          sha256sum build/Quake.bin | tee build/SHA256SUMS
 
       - name: Create GitHub Release and Upload Artifact
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: build/Quake.bin
+          files: |
+            build/Quake.bin
+            build/SHA256SUMS
           generate_release_notes: true

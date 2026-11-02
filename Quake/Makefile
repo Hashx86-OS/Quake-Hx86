@@ -1,7 +1,11 @@
 GPP = g++
 LD = ld
 
-INCLUDES = -Iinclude -Iengine -I../libhx86/include -I.
+LIBHX86_INCLUDE ?= ../Hashx86-OS/user_prog/libhx86/include
+KERNEL_INCLUDE ?= ../Hashx86-OS/include
+LIBHX86_LIB_DIR ?= ../Hashx86-OS/build/libhx86
+
+INCLUDES = -Iinclude -Iengine -I$(LIBHX86_INCLUDE) -I$(KERNEL_INCLUDE) -I.
 BASE_CXXFLAGS = -m32 -O2 -g -ffreestanding -nostdlib -fno-builtin -fno-rtti -fno-exceptions -fcommon -fomit-frame-pointer -fpermissive -Wno-write-strings -Wno-return-type $(INCLUDES)
 ENGINE_CXXFLAGS = $(BASE_CXXFLAGS) -Dnew=new_block -Did386=0
 OUR_CXXFLAGS = $(BASE_CXXFLAGS)
@@ -107,7 +111,7 @@ $(ENGINE_OBJS_DIR)/%.o: %.c
 
 $(TARGET): $(ALL_OBJS) linker.ld
 	@mkdir -p $(BUILD_DIR)
-	$(LD) -melf_i386 -T linker.ld -o $@ $(ALL_OBJS) -L../build/libhx86 -lhx86
+	$(LD) -melf_i386 -T linker.ld -o $@ $(ALL_OBJS) -L$(LIBHX86_LIB_DIR) -lhx86
 
 clean:
 	rm -rf $(ENGINE_OBJS_DIR)

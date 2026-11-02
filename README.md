@@ -11,14 +11,33 @@ Software renderer, keyboard + mouse input, no sound. Runs single-player and list
 - GCC/g++ with multilib support (for `-m32`)
 - GNU `ld` (for `-melf_i386`)
 - `make`
+- A [Hashx86-OS](https://github.com/Hashx86-OS/Hashx86-OS) checkout, for `libhx86`
 
 ## Build
+
+By default the build expects the kernel checkout next to this repository:
+
+```text
+org/
+  Hashx86-OS/
+  Quake-Hx86/
+```
 
 ```bash
 make
 ```
 
+Point `KERNEL_DIR` at a different checkout if needed:
+
+```bash
+make KERNEL_DIR=/path/to/Hashx86-OS
+```
+
 Output: `build/Quake.bin`
+
+The build compiles `libhx86` from `$KERNEL_DIR/user_prog/libhx86` and links
+it statically. The `libhx86/` directory in this repository is a legacy
+snapshot and is not used by the build.
 
 ## Game data
 
@@ -81,7 +100,7 @@ Launch Quake from the Hashx86 OS (`File Explorer` → `Apps` → `Quake`).
 | `Quake/in_hx86.c` | Keyboard/mouse input |
 | `Quake/linker.ld` | Linker script for Hashx86 OS binaries |
 | `Quake/Makefile` | Build rules |
-| `libhx86/` | Hashx86 OS user-space library |
+| `libhx86/` | Legacy vendored snapshot; the build uses `$KERNEL_DIR/user_prog/libhx86` |
 
 ## License
 
