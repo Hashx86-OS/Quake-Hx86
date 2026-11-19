@@ -35,15 +35,29 @@ make KERNEL_DIR=/path/to/Hashx86-OS
 
 Output: `build/Quake.bin`
 
-The build compiles `libhx86` from `$KERNEL_DIR/user_prog/libhx86` and links
-it statically. The `libhx86/` directory in this repository is a legacy
+The build compiles `libhx86` and `libmbedtls` from `$KERNEL_DIR` and links
+them statically. The `libhx86/` directory in this repository is a legacy
 snapshot and is not used by the build.
 
 ## Game data
 
-`pak0.pak` is **proprietary** — you must provide your own copy from a legal Quake installation (Steam, GOG, original CD). The shareware `pak0.pak` also works for the first episode.
+`pak0.pak` is **proprietary** — full/retail data must come from a legal Quake
+installation (Steam, GOG, original CD). The shareware episode 1 data is
+available through the Quake app itself.
 
-The game resolves its data directory relative to the running binary's location, so `pak0.pak` must be placed in an `id1/` folder next to `Quake.bin` (i.e. `<Quake dir>/id1/pak0.pak`). If the file is missing, the game shows a GUI dialog with the expected path and an Exit button.
+The game resolves its data directory relative to the running binary's location,
+so data lives in `<Quake dir>/id1/pak0.pak`. If the file is missing, the app
+shows a dialog offering:
+
+- a download of the original id Software `quake106.zip` from gamers.org,
+- SHA-256 verification of the archive and extracted members,
+- local ZIP+LHA extraction into `id1/pak0.pak`,
+- installation of `SLICNSE.TXT` and `LICINFO.TXT` under `licenses/`,
+- preservation of the original compressed archive under `shareware/`.
+
+Hashx86 does not host the game data. Only the original compressed shareware
+archive is downloaded; the app never redistributes a bare PAK. The shareware
+license applies: episode 1 only, no commercial use.
 
 ## Install to Hashx86 OS disk image
 
@@ -93,17 +107,22 @@ Launch Quake from the Hashx86 OS (`File Explorer` → `Apps` → `Quake`).
 |---|---|
 | `Quake/engine/` | WinQuake engine source (GPL 2.0) |
 | `Quake/include/` | WinQuake header files (GPL 2.0) |
-| `Quake/prog.cpp` | Entry point for Hashx86 OS |
+| `Quake/prog.cpp` | Entry point and missing-data installer UI |
+| `Quake/data/` | Shareware download, SHA-256 verification and ZIP+LHA extraction |
 | `Quake/compat.c` | C standard library stubs + syscall wrappers |
 | `Quake/sys_hx86.c` | System interface (file I/O, timing) |
 | `Quake/vid_hx86.c` | Video output (VESA framebuffer) |
 | `Quake/in_hx86.c` | Keyboard/mouse input |
 | `Quake/linker.ld` | Linker script for Hashx86 OS binaries |
 | `Quake/Makefile` | Build rules |
+| `third_party/miniz/` | ZIP/deflate reader (MIT) |
+| `third_party/lhasa/` | LHA/LH5 reader (ISC) |
 | `libhx86/` | Legacy vendored snapshot; the build uses `$KERNEL_DIR/user_prog/libhx86` |
 
 ## License
 
 - **Engine code** (`engine/`, `include/`): GPL v2 or later — Copyright (C) 1996-1997 id Software, Inc.
 - **Port code** (`prog.cpp`, `compat.c`, `sys_hx86.c`, `vid_hx86.c`, `in_hx86.c`, `Makefile`, `linker.ld`): GPL v2 or later
+- **Data installer** (`data/`): MIT
+- **miniz** (`third_party/miniz/`): MIT; **lhasa** (`third_party/lhasa/`): ISC
 - **Game data** (`pak0.pak`): Proprietary — not included

@@ -40,7 +40,9 @@ jobs:
           path: kernel
           sparse-checkout: |
             user_prog/libhx86
+            user_prog/libmbedtls
             include
+            third_party/mbedtls
           persist-credentials: false
 
       - name: Install C++ Compiler and Dependencies
