@@ -89,7 +89,9 @@ ENGINE_C = \
 
 ENGINE_C += \
 	$(ENGINE_SRC_DIR)/cd_null.c \
-	$(ENGINE_SRC_DIR)/snd_null.c
+	$(ENGINE_SRC_DIR)/snd_dma.c \
+	$(ENGINE_SRC_DIR)/snd_mem.c \
+	$(ENGINE_SRC_DIR)/snd_mix.c
 
 ENGINE_C += \
 	$(ENGINE_SRC_DIR)/net_loop.c \
@@ -99,7 +101,8 @@ ENGINE_C += \
 # All files compiled as C++ (Quake C code is compatible)
 ENGINE_CXX = $(ENGINE_C)
 OUR_SRC = prog.cpp data/Archive.cpp data/ArchivePort.cpp data/ArchiveCompat.cpp \
-          data/HttpClient.cpp data/StoreUtil.cpp compat.c sys_hx86.c vid_hx86.c in_hx86.c
+          data/HttpClient.cpp data/StoreUtil.cpp compat.c sys_hx86.c vid_hx86.c in_hx86.c \
+          snd_hx86.c
 
 # Vendored archive readers. These stay C so their upstream code is unchanged.
 ARCHIVE_C = \

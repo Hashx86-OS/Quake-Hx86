@@ -4,7 +4,15 @@ Port of the WinQuake engine to the [Hashx86 OS](https://github.com/Hashx86-OS/Ha
 
 ## Status
 
-Software renderer, keyboard + mouse input, no sound. Runs single-player and listen-server multiplayer on localhost.
+Software renderer, keyboard + mouse input, 44.1 kHz stereo sound through the
+Hashx86 AC97 mixer, and no CD music. Runs single-player and listen-server
+multiplayer on localhost.
+
+## Audio
+
+Sound effects use the Hx86 streaming audio ring at 44.1 kHz, 16-bit stereo.
+It requires the kernel's AC97 driver; without an AC97 device the game falls
+back to silent operation. CD music is not implemented.
 
 ## Prerequisites
 
