@@ -11,8 +11,19 @@ cvar_t sys_linerefresh = {"sys_linerefresh","0"};
 
 extern void Sys_SetFPCW(void);
 
-static double sys_time_base = 0.0;
-static double sys_time_scale = 0.0;
+// Kernel PIT-based millisecond clock (Hsys 15). The TSC frequency differs
+// between CPUs (and between QEMU/VirtualBox hosts), so scaling a raw TSC by a
+// fixed constant makes the game clock run at the wrong speed.
+#define HX86_HSYS_GET_TIME_MS 15
+
+static int32_t HxTimeMs(void) {
+    int32_t result = 0;
+    __asm__ __volatile__("int $0x80"
+                         : "=a"(result)
+                         : "a"(sys_Hcall), "b"(HX86_HSYS_GET_TIME_MS)
+                         : "memory");
+    return result;
+}
 
 void Sys_Printf(char *fmt, ...) {
     va_list argptr;
@@ -33,12 +44,6 @@ void Sys_Quit(void) {
 
 void Sys_Init(void) {
     Sys_SetFPCW();
-    {
-        uint32_t lo, hi;
-        __asm__ volatile ("rdtsc" : "=a"(lo), "=d"(hi));
-        sys_time_base = (double)(((uint64_t)hi << 32) | lo);
-        sys_time_scale = 1.0 / 1000000000.0;
-    }
 }
 
 void Sys_Error(char *error, ...) {
@@ -128,10 +133,7 @@ void Sys_EditFile(char *filename) {
 }
 
 double Sys_FloatTime(void) {
-    uint32_t lo, hi;
-    __asm__ volatile ("rdtsc" : "=a"(lo), "=d"(hi));
-    double t = (double)(((uint64_t)hi << 32) | lo);
-    return (t - sys_time_base) * sys_time_scale;
+    return (double)HxTimeMs() / 1000.0;
 }
 
 void Sys_Sleep(void) {
