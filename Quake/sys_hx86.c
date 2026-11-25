@@ -25,7 +25,10 @@ void Sys_Printf(char *fmt, ...) {
 
 void Sys_Quit(void) {
     Host_Shutdown();
-    syscall_exit(0);
+    // Exit every thread: the GUI event-handler thread created for the pak
+    // download dialog otherwise keeps the process and its fullscreen lock
+    // alive after this thread returns.
+    syscall_exit_group(0);
 }
 
 void Sys_Init(void) {
@@ -46,7 +49,7 @@ void Sys_Error(char *error, ...) {
     va_end(argptr);
     printf("Error: %s\n", string);
     Host_Shutdown();
-    syscall_exit(1);
+    syscall_exit_group(1);
 }
 
 void Sys_Warn(char *warning, ...) {
@@ -200,7 +203,7 @@ extern "C" void QuakeMain(int argc, char *argv[]) {
     parms.membase = kmalloc(parms.memsize);
     if (!parms.membase) {
         printf("[Quake] FATAL: Failed to allocate %d bytes for heap\n", parms.memsize);
-        syscall_exit(1);
+        syscall_exit_group(1);
     }
 
     // Resolve the base directory from the running binary's location so game

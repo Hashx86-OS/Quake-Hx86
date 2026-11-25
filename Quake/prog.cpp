@@ -149,7 +149,7 @@ extern "C" void _start(void* arg) {
         ShowMissingPakDialog(pakpath);
         if (!pak_file_exists(pakpath)) {
             printf("[Quake] Game data is still missing, exiting\n");
-            syscall_exit(1);
+            syscall_exit_group(1);
         }
     }
 
@@ -158,5 +158,5 @@ extern "C" void _start(void* arg) {
 
     printf("[Quake] Starting...\n");
     QuakeMain(1, build_argv);
-    syscall_exit(0);
+    syscall_exit_group(0);
 }

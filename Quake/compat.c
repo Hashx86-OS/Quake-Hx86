@@ -843,7 +843,7 @@ __attribute__((used)) void longjmp(jmp_buf env, int val) {
 }
 
 void exit(int status) {
-    syscall_exit(status);
+    syscall_exit_group(status);
 }
 
 void perror(const char *s) {
